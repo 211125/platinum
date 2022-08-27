@@ -17,11 +17,12 @@ function Login(){
                                 <label  className="from-label">User</label>
                             </div>
                             <div className="from-group">
-                                <input  type="tex" className="from-input" placeholder="Password"/>
+                                <input  type="password" className="from-input" placeholder="Password"/>
                                 <label  className="from-label">Password</label>
                             </div>
                             <a href="https://platinum.upchiapas.edu.mx/login.php" className="recovery-pass">Forgot your password?</a>
-                            <button className="from-submit">Login</button>
+                            <button className="from-submit">
+                                <a href="/home" className="a link">Login</a></button>
                             <button   className="from-submit-Second" >
                                 <a href="/signUp" className="a link">Sign Up</a>
                              </button>
