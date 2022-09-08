@@ -1,5 +1,5 @@
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Label, Input, FormGroup } from 'reactstrap';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 function TableAfirmativa() {
@@ -51,6 +51,7 @@ function TableAfirmativa() {
         console.log(newdata)
 
     }
+
     return(
 
         <div>
@@ -83,6 +84,7 @@ function TableAfirmativa() {
                     <td className="white" >si utiliza algún otro sistema, descríbalo por favor.</td>
                     <td className="white"><input type="tex" className="input-boolean" onChange={(e)=>handle(e)} id="pregunta_4" value={data.pregunta_4} /></td>
                 </tr>
+
                 </thead>
             </table>
 
