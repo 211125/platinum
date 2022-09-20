@@ -108,6 +108,7 @@ class Reporte extends Component {
     componentDidMount() {
         this.peticionGet();
     }
+/*delite*/
 
 
     render(){

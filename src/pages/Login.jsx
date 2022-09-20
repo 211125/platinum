@@ -1,28 +1,88 @@
 import "../assets/stylesheets/app.css";
 import {Link} from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2'
+import { useForm } from "react-hook-form";
+import React,{useState} from "react";
+import axios from "axios";
 
 function Login(){
+    const navigator = useNavigate()
+    const data = useState({
+        email: '',
+        Password: '',
+        validat: ''
+    })
+    const url = "http://localhost:3000/api/users/login"
+    const { handleSubmit, register, formState: { errors } } = useForm();
+    const onSubmit = values =>{
+        const data = values;
 
+        console.log(data);
+        axios.post(url,{
+            email: data.email,
+            Password: data.Password,
+            validat: data.validat
+        })
+            .then(res =>{
+                if (res.request.status === 200){
+
+                    Swal.fire(
+                        'Bienvenido!',
+                        'success'
+                    )
+                    navigator('/home')
+
+
+                }
+            })
+            .catch(err => {
+                Swal.fire(
+                    'Error!',
+                    ''+ err.response.data.error +'',
+                    'error'
+                )
+            })
+
+    }
     return (
         <div>
 
             <div >
-                <form className="from">
+                <form className="from"  noValidate onSubmit={handleSubmit(onSubmit)}>
 
                     <h1 className="from-title">Login</h1>
 
                     <div className="from-group">
-                        <input  type="tex" className="from-input" placeholder="user"/>
+
+                        <input type="text" className="from-input" id="email" placeholder="Email" required {...register("email",{
+                            required: {
+                                value: true,
+                                message: "El campo requerido",
+                            },
+                            pattern:{
+                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                message: "Invalido email"
+                            }
+                        })}></input>
+                        {errors.email && <span className="text-danger">{errors.email.message}</span>}
                         <label  className="from-label">User</label>
                     </div>
                     <div className="from-group">
-                        <input  type="password" className="from-input" placeholder="Password"/>
+                        <input type="password" className="from-input" placeholder="Password" required {...register("password",{
+                            required: {
+                                value: true,
+                                message: "El campo requerido",
+                            },
+                            minLength:{
+                                value: 4,
+                                message: "La contraseña debe tener minimo 4 caracteres"
+                            }
+                        })}></input>
+                        {errors.password && <span className="text-danger">{errors.password.message}</span>}
                         <label  className="from-label">Password</label>
                     </div>
-                    <a href="https://platinum.upchiapas.edu.mx/login.php" className="recovery-pass">Forgot your password?</a>
-                    <button className="from-submit">
-                        <a href="/home" className="a link">Login</a></button>
+                    <button className="from-submit"  >Login</button>
                     <button   className="from-submit-Second" >
                         <a href="/signUp" className="a link">Sign Up</a>
                     </button>

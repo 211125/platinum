@@ -8,6 +8,7 @@ function DatoEScolar() {
     const add = () => setModaladd(!modaladd);
 
     const [data,setData] = useState({
+        id : "",
         periodoEscolar: "",
         cuatrimestre: "",
         grupo: "",
@@ -24,6 +25,7 @@ function DatoEScolar() {
     function Enviar(e){
         e.preventDefault();
         axios.post(url,{
+
             periodoEscolar: data.periodoEscolar,
             cuatrimestre: data.cuatrimestre,
             grupo: data.grupo,
@@ -108,6 +110,16 @@ function DatoEScolar() {
 
     }
 
+    const postDelete = (id,e) =>{
+        e.preventDefault();
+        axios.delete(`http://localhost:3000/api/tutorados/delete_dataT?id=${id}`)
+            .then(res => console.log(res))
+            .catch(err =>{
+                console.log(err)
+                console.log(`http://localhost:3000/api/tutorados/delete_dataT?id=${id}`)
+            } )
+
+    }
     return(
         <div>
             <button  className="Button" onClick={add}>agregar</button>
@@ -151,6 +163,7 @@ function DatoEScolar() {
                 <tbody>
                 { blogs.map ( (blog) => (
                     <tr key={ blog.id}>
+
                         <td className="tr-back"> { blog.periodoEscolar } </td>
                         <td className="tr-back"> { blog.cuatrimestre } </td>
                         <td className="tr-back"> { blog.grupo } </td>
@@ -161,7 +174,7 @@ function DatoEScolar() {
                         <td className="tr-back"> { blog.resuelto } </td>
                         <td className="tr-back"> { blog.casosTutor } </td>
                         <td className="tr-back"> { blog.casosCanaliacion } </td>
-                        <td className="white2" ><button  className="Button">eliminar</button><button onClick={add} className="Button">actualizar</button></td>
+                        <td className="white2" ><button onClick={(e) => postDelete(data.id, e)} className="Button">eliminar</button><button onClick={add} className="Button">actualizar</button></td>
                     </tr>
                 )) }
                 </tbody>
