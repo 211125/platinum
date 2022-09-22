@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import axios from "axios";
 
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Label, Input, FormGroup } from 'reactstrap';
 
-import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
 
 class Atencion extends Component {
@@ -116,6 +116,7 @@ class Atencion extends Component {
                         <th  className="bg-success">Apellido Materno</th>
                         <th  className="bg-danger">Nombre</th>
                         <th  className="table-secondary">sexo</th>
+                        <th  className="table-secondary">opciones</th>
 
                     </tr>
 
@@ -141,7 +142,7 @@ class Atencion extends Component {
                                 <td>
                                     <button className="btn btn-primary" onClick={()=>{this.seleccionarEmpresa(empresa); this.modalInsertar()}}>actualizar</button>
                                     {"   "}
-                                    <button className="btn btn-danger" onClick={()=>{this.seleccionarEmpresa(empresa); this.setState({modalEliminar: true})}}>eliminar</button>
+                                    <button className="btn btn-outline-danger" onClick={()=>{this.seleccionarEmpresa(empresa); this.setState({modalEliminar: true})}}>eliminar</button>
                                 </td>
                             </tr>
                         )
@@ -152,45 +153,42 @@ class Atencion extends Component {
 
 
                 <Modal isOpen={this.state.modalInsertar}>
-                    <ModalHeader style={{display: 'block'}}>
-                        <span style={{float: 'right'}} onClick={()=>this.modalInsertar()}>x</span>
-                    </ModalHeader>
+                    <ModalHeader className="text-primary">Agregar</ModalHeader>
                     <ModalBody>
-
+                        <form className="was-validated" noValidate>
+                            <FormGroup>
                         <div className="form-group">
-                            <label htmlFor="id">ID</label>
-                            <input className="form-control" type="text" name="id" id="id" readOnly onChange={this.handleChange} value={form?form.id: ''}/>
-                            <br />
-                            <label htmlFor="nombre">Cubiculo</label>
-                            <input className="form-control" type="text" name="apellidoP" id="apellidoP" onChange={this.handleChange} value={form?form.apellidoP: ''}/>
-                            <br />
-                            <label htmlFor="nombre">Numero de Cubiculo</label>
-                            <input className="form-control" type="text" name="numeroAula" id="numeroAula" onChange={this.handleChange} value={form?form.numeroAula: ''}/>
-                            <br />
-                            <label htmlFor="energiaElec">Energia Electrica</label>
-                            <input className="form-control" type="text" name="energiaElec" id="energiaElec" onChange={this.handleChange} value={form?form.energiaElec:''}/>
-                            <br />
-                            <label htmlFor="infraestructura">Infraestructura</label>
-                            <input className="form-control" type="text" name="infraestructura" id="infraestructura" onChange={this.handleChange} value={form?form.infraestructura:''}/>
+                            <div>
+                                <ModalHeader className="text-primary">Matricula</ModalHeader>
+                                <input type="text" className="form-control"  i name="matricula" id="matricula" onChange={this.handleChange} value={form?form.matricula: ''} required></input>
+                                <ModalHeader className="text-primary">apellido paderno</ModalHeader>
+                                <input type="text" className="form-control"  i name="apellidoP" id="apellidoP" onChange={this.handleChange} value={form?form.apellidoP: ''} required></input>
+                            </div>
+                            <ModalHeader className="text-primary">Apellido Materno</ModalHeader>
+                            <input type="text" className="form-control"  i name="apellidoM" id="apellidoM" onChange={this.handleChange} value={form?form.apellidoM: ''} required></input>
+                            <ModalHeader className="text-primary">Nombre</ModalHeader>
+                            <input type="text" className="form-control"  i name="nombres" id="nombres" onChange={this.handleChange} value={form?form.nombres: ''} required></input>
+                            <ModalHeader className="text-primary">Sexo</ModalHeader>
+                            <input type="text" className="form-control"  i name="sexo" id="sexo" onChange={this.handleChange} value={form?form.sexo: ''} required></input>
                         </div>
+                            </FormGroup>
+                        </form>
                     </ModalBody>
 
                     <ModalFooter>
-                        {this.state.tipoModal=='insertar'?
-                            <button className="btn btn-success" onClick={()=>this.peticionPost()}>
-                                Insertar
-                            </button>: <button className="btn btn-primary" onClick={()=>this.peticionPut()}>
+
+                            <button className="btn btn-primary" onClick={()=>this.peticionPut()}>
                                 Actualizar
                             </button>
-                        }
-                        <button className="btn btn-danger" onClick={()=>this.modalInsertar()}>Cancelar</button>
+
+                        <button className="btn btn-secondary" onClick={()=>this.modalInsertar()}>Cancelar</button>
                     </ModalFooter>
                 </Modal>
 
 
                 <Modal isOpen={this.state.modalEliminar}>
                     <ModalBody>
-                        Estás seguro que deseas eliminar a la empresa {form && form.id}
+
                         <label htmlFor="id">ID</label>
                         <input className="form-control" type="text" name="id" id="id" readOnly onChange={this.handleChange} value={form?form.id: ''}/>
                         <br />

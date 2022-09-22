@@ -9,7 +9,7 @@ const url="http://localhost:3000/api/tutorados/create_dataT?";
 const url1="http://localhost:3000/api/tutorados/update_dataT?";
 const url2="http://localhost:3000/api/reporte/delete?";
 
-class Reporte extends Component {
+class DatoEScolar extends Component {
     state={
         data:[],
         modalInsertar: false,
@@ -211,4 +211,4 @@ class Reporte extends Component {
         );
     }
 }
-export default Reporte;
+export default DatoEScolar;

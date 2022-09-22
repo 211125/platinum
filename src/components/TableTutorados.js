@@ -1,133 +1,213 @@
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Label, Input, FormGroup } from 'reactstrap';
 import {useState} from "react";
+
+import React, { Component } from 'react';
 import axios from "axios";
-import Swal from 'sweetalert2';
 
-function TableTutorados(){
-    const [modaladd, setModaladd] = useState(false);
-    const add = () => setModaladd(!modaladd);
 
-    const [data,setData] = useState({
-        numTR: "",
-        numTRiesgo: "",
-        numTCO: "",
-        numBajaD: "",
-        EBTemporal: ""
-    });
-    const url ='http://localhost:3000/api/atencion/create_data'
 
-    function Enviar(e){
-        e.preventDefault();
-        axios.post(url,{
-            numTR: data.numTR,
-            numTRiesgo: data.numTRiesgo,
-            numTCO: data.numTCO,
-            numBajaD: data.numBajaD,
-            EBTemporal: data.EBTemporal
+
+
+class TableTutorados extends Component {
+    state={
+        data:[],
+        modalInsertar: false,
+        modalEliminar: false,
+        form:{
+            id: "",
+            numTR: "",
+            numTRiesgo: "",
+            numTCO: "",
+            numBajaD: "",
+            EBTemporal: ""
+        }
+    }
+
+    peticionGet=()=>{
+        axios.get('http://localhost:3000/api/atencion/view_data').then(response=>{
+            this.setState({data: response.data});
+        }).catch(error=>{
+            console.log(error.message);
         })
-            .then(response => {
-                Swal.fire({
-                    title: 'DATOS AGREGADO EXITOSOS',
-                    text: "",
-                    icon: 'success',
-                    confirmButtonColor: '#0e46ff',
-                    confirmButtonText: 'Okay'
-                })
-            })
-            .catch(error => {
-                console.log(error)
-                this.errored = true
-                Swal.fire({
-                    title: 'DATOS AGREGADO EXITOSOS',
-                    text: "",
-                    icon: 'error',
-                    confirmButtonColor: '#0e46ff',
-                    confirmButtonText: 'Okay'
-                })
-            })
     }
 
-    function handle(e){
-        const newdata = {...data}
-        newdata[e.target.id] = e.target.value
-        setData(newdata)
-        console.log(newdata)
+    peticionPost=async()=>{
+        delete this.state.form.id;
+        await axios.post("http://localhost:3000/api/atencion/create_data?",this.state.form).then(response=>{
 
+            this.peticionGet();
+        }).catch(error=>{
+            console.log(error.message);
+        })
     }
-    return(
-        <div>
-            <button  onClick={add} className="Button">Actualizar</button>
-            <table className="table1">
-                <thead className="tr-back">
-                <tr>
-                    <td className="warning" >Número de tutorados detectados como irregular</td>
-                    <td className="bg-danger" >Número de tutorados detectados en riesgo</td>
-                    <td className="bg-success" >Número de tutorados canalizados oportunamente</td>
-                    <td className="bg-purple" >Número de tutorados dados de baja definitiva o academica </td>
-                    <td className="bg-primary" >Número de estudiantes con baja temporal </td>
-                    <td className="bg-primary" >Accion</td>
 
-                </tr>
-                <tr className="tr-back">
-                    <td> <input onChange={(e)=>handle(e)} id="numTR" value={data.numTR} type="tex" className="from-input"/></td>
-                    <td> <input onChange={(e)=>handle(e)} id="numTRiesgo" value={data.numTRiesgo} n type="tex" className="from-input"/></td>
-                    <td> <input onChange={(e)=>handle(e)} id="numTCO" value={data.numTCO} type="tex" className="from-input"/></td>
-                    <td> <input onChange={(e)=>handle(e)} id="numBajaD" value={data.numBajaD} type="tex" className="from-input"/></td>
-                    <td> <input onChange={(e)=>handle(e)} id="EBTemporal" value={data.EBTemporal} type="tex" className="from-input"/></td>
+    peticionPut=()=>{
+        axios.put("http://localhost:3000/api/atencion/update_data?"+this.state.form.id, this.state.form).then(response=>{
 
-                    <td className="white2" ><button onClick={(e)=>Enviar(e)} className="Button">Agregar</button></td>
-                </tr>
+            this.modalInsertar();
+            this.peticionGet();
+        })
+    }
 
-                </thead>
-            </table>
 
-            < div>
-                <form>
-                    <Modal isOpen={modaladd}>
-                        <ModalHeader className="text-primary">Actualizar</ModalHeader>
-                        <ModalBody>
-                            <form className="was-validated" noValidate>
-                                <FormGroup>
+    peticionDelete=(id)=>{
 
+        axios.delete(`http://localhost:3000/api/atencion/delete_data?id=${id}`, {
+            data: this.state.form,
+        })
+            .then(response=>{
+                this.setState({modalEliminar: false});
+                this.peticionGet();
+
+                console.log(response)
+
+            })
+            .catch(err =>{
+                console.log(err)
+
+            } )
+    }
+
+
+    modalInsertar=()=>{
+        this.setState({modalInsertar: !this.state.modalInsertar});
+    }
+
+    seleccionarEmpresa=(empresa)=>{
+        this.setState({
+            tipoModal: 'actualizar',
+            form: {
+                id: empresa.id,
+                numTR: empresa.numTR,
+                numTRiesgo: empresa.numTRiesgo,
+                numTCO: empresa.numTCO,
+                numBajaD: empresa.numBajaD,
+                EBTemporal: empresa.EBTemporal
+            }
+        })
+    }
+
+    handleChange=async e=>{
+        e.persist();
+        await this.setState({
+            form:{
+                ...this.state.form,
+                [e.target.name]: e.target.value
+            }
+        });
+        console.log(this.state.form);
+    }
+
+    componentDidMount() {
+        this.peticionGet();
+    }
+
+
+    render(){
+        const {form}=this.state;
+        return (
+            <div className="App">
+                <br /><br /><br />
+
+                <br /><br />
+                <table className="table1">
+                    <thead>
+
+
+                    <tr className="tr-back">
+                        <td className="warning" >Número de tutorados detectados como irregular</td>
+                        <td className="bg-danger" >Número de tutorados detectados en riesgo</td>
+                        <td className="bg-success" >Número de tutorados canalizados oportunamente</td>
+                        <td className="bg-purple" >Número de tutorados dados de baja definitiva o academica </td>
+                        <td className="bg-primary" >Número de estudiantes con baja temporal </td>
+                        <td className="bg-primary" >Accion</td>
+
+                    </tr>
+                    <tr className="tr-back">
+                        <td className="white"><input className="from-input" onChange={this.handleChange} id="numTR"  name="numTR"type="tex"/></td>
+                        <td className="white"><input className="from-input" type="tex" onChange={this.handleChange} id="numTRiesgo" name="numTRiesgo"/></td>
+                        <td className="white"><input className="from-input" type="tex"  onChange={this.handleChange} id="numTCO" name="numTCO"  /></td>
+                        <td className="white"><input className="from-input" type="tex"  onChange={this.handleChange} id="numBajaD" name="numBajaD" /></td>
+                        <td className="white"><input className="from-input" type="tex"  onChange={this.handleChange} id="EBTemporal" name="EBTemporal" /></td>
+                        <td className="white2" ><button  className="Button" onClick={()=>this.peticionPost()}>Agregar</button></td>
+                    </tr>
+
+
+                    </thead>
+                    <tbody>
+                    {this.state.data.map(empresa=>{
+                        return(
+                            <tr className="tr-back">
+                                <td className="tr-back">{empresa.numTR}</td>
+                                <td className="tr-back">{empresa.numTRiesgo}</td>
+                                <td className="tr-back">{empresa.numTCO}</td>
+                                <td className="tr-back">{empresa.numBajaD}</td>
+                                <td className="tr-back">{empresa.EBTemporal}</td>
+                                <td>
+                                    <button className="Button" onClick={()=>{this.seleccionarEmpresa(empresa); this.modalInsertar()}}>actualizar</button>
+                                    {"   "}
+                                    <button className="Button" onClick={()=>{this.seleccionarEmpresa(empresa); this.setState({modalEliminar: true})}}>eliminar</button>
+                                </td>
+
+                            </tr>
+                        )
+                    })}
+                    </tbody>
+                </table>
+
+
+
+                <Modal isOpen={this.state.modalInsertar}>
+                    <ModalHeader className="text-primary">Agregar</ModalHeader>
+                    <ModalBody>
+                        <form className="was-validated" noValidate>
+                            <FormGroup>
+                                <div className="form-group">
                                     <div>
-                                        <Label for="price">Número de tutorados detectados como irregular</Label>
-                                        <input type="number" className="form-control"
-                                               id="nameProduc"
-                                               required></input>
+                                        <ModalHeader className="text-primary">Número de tutorados detectados como irregular</ModalHeader>
+                                        <input type="text" className="form-control"  i name="numTR" id="numTR" onChange={this.handleChange} value={form?form.numTR: ''} required></input>
+                                        <ModalHeader className="text-primary">Número de tutorados detectados en riesgo</ModalHeader>
+                                        <input type="text" className="form-control"  i name="numTRiesgo" id="numTRiesgo" onChange={this.handleChange} value={form?form.numTRiesgo: ''} required></input>
                                     </div>
-                                    <div>
-                                        <Label >Número de tutorados detectados en riesgo</Label>
-                                        <input type="number" className="form-control"
-                                               id="description"
-                                               required></input>
-                                    </div>
-                                    <div>
-                                        <Label >Número de tutorados canalizados oportunamente</Label>
-                                        <input type="text" className="form-control"
-                                               id="price"   required></input>
-                                    </div>
-                                    <div>
-                                        <Label >Número de tutorados dados de baja definitiva o academica </Label>
-                                        <input type="number" className="form-control"
-                                               id="amount"   required></input>
-                                    </div>
-                                    <div>
-                                        <Label >Número de estudiantes con baja temporal </Label>
-                                        <input type="number" className="form-control"
-                                               id="amount"   required></input>
-                                    </div>
-                                </FormGroup>
-                            </form>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button type="submit"  color="primary">Guardar</Button>
-                            <Button color="secondary" onClick={add}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
-                </form>
-            < /div>
+                                    <ModalHeader className="text-primary">Número de tutorados canalizados oportunamente</ModalHeader>
+                                    <input type="text" className="form-control"  i name="numTCO" id="numTCO" onChange={this.handleChange} value={form?form.numTCO: ''} required></input>
+                                    <ModalHeader className="text-primary">Número de tutorados dados de baja definitiva o academica.</ModalHeader>
+                                    <input type="text" className="form-control"  i name="numBajaD" id="numBajaD" onChange={this.handleChange} value={form?form.numBajaD: ''} required></input>
+                                    <ModalHeader className="text-primary">Número de estudiantes con baja temporal.</ModalHeader>
+                                    <input type="text" className="form-control"  i name="EBTemporal" id="EBTemporal" onChange={this.handleChange} value={form?form.EBTemporal: ''} required></input>
+                                </div>
+                            </FormGroup>
+                        </form>
+                    </ModalBody>
 
-        </div>
-    )
+                    <ModalFooter>
+
+                        <button className="btn btn-primary" onClick={()=>this.peticionPut()}>
+                            Actualizar
+                        </button>
+
+                        <button className="btn btn-secondary" onClick={()=>this.modalInsertar()}>Cancelar</button>
+                    </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={this.state.modalEliminar}>
+                    <ModalBody>
+
+                        <label htmlFor="id">ID</label>
+                        <input className="form-control" type="text" name="id" id="id" readOnly onChange={this.handleChange} value={form?form.id: ''}/>
+                        <br />
+                    </ModalBody>
+                    <ModalFooter>
+                        <button className="btn btn-danger" onClick={()=>this.peticionDelete(this.state.form.id)}>Sí</button>
+                        <button className="btn btn-secundary" onClick={()=>this.setState({modalEliminar: false})}>No</button>
+                    </ModalFooter>
+                </Modal>
+            </div>
+
+
+
+        );
+    }
 }
 export default TableTutorados;
