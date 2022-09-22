@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import axios from "axios";
-import logo from "../assets/img/logo.png";
-import {Modal, ModalBody, ModalFooter} from "reactstrap";
 
 
-
-const url="http://localhost:3000/api/alumnos/create_estudiantes?";
-const url1="http://localhost:3000/api/reporte/update?";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
 
-class Reporte extends Component {
+class Atencion extends Component {
     state={
         data:[],
         modalInsertar: false,
@@ -34,8 +30,8 @@ class Reporte extends Component {
 
     peticionPost=async()=>{
         delete this.state.form.id;
-        await axios.post(url,this.state.form).then(response=>{
-            this.modalInsertar();
+        await axios.post("http://localhost:3000/api/alumnos/create_estudiantes?",this.state.form).then(response=>{
+
             this.peticionGet();
         }).catch(error=>{
             console.log(error.message);
@@ -43,7 +39,7 @@ class Reporte extends Component {
     }
 
     peticionPut=()=>{
-        axios.put(url1+this.state.form.id, this.state.form).then(response=>{
+        axios.put("http://localhost:3000/api/alumnos/update_estudiantes?"+this.state.form.id, this.state.form).then(response=>{
 
             this.modalInsertar();
             this.peticionGet();
@@ -51,22 +47,21 @@ class Reporte extends Component {
     }
 
 
-    peticionDelete=(id,e)=>{
+    peticionDelete=(id)=>{
 
-        e.preventDefault();
         axios.delete(`http://localhost:3000/api/alumnos/delete_estudiantes?id=${id}`, {
             data: this.state.form,
         })
             .then(response=>{
-
+                this.setState({modalEliminar: false});
+                this.peticionGet();
 
                 console.log(response)
 
             })
             .catch(err =>{
                 console.log(err)
-                console.log( this.state.form)
-                console.log(`http://localhost:3000/api/alumnos/delete_estudiantes?id=${id}`)
+                console.log(`http://localhost:3000/api/reporte/delete?id=${id}`)
 
             } )
     }
@@ -109,12 +104,11 @@ class Reporte extends Component {
     render(){
         const {form}=this.state;
         return (
+            <div className="App">
+                <br /><br /><br />
 
-            <div>
-
-            <form>
-                <button  className="Button" >agregar</button>
-                <table >
+                <br /><br />
+                <table className="table ">
                     <thead>
                     <tr>
                         <td className="bg-primary" >Matricula</td>
@@ -134,32 +128,66 @@ class Reporte extends Component {
 
                         <td className="white2" ><button  className="Button" onClick={()=>this.peticionPost()}>Agregar</button></td>
                     </tr>
-
+                    </thead>
+                    <tbody>
                     {this.state.data.map(empresa=>{
                         return(
-                            <tr>
-                                <td className="tr-back">{empresa.id}</td>
+                            <tr className="tr-back">
                                 <td className="tr-back">{empresa.matricula}</td>
                                 <td className="tr-back">{empresa.apellidoP}</td>
                                 <td className="tr-back">{empresa.apellidoM}</td>
                                 <td className="tr-back">{empresa.nombres}</td>
                                 <td className="tr-back">{empresa.sexo}</td>
                                 <td>
-
-
-                                    <button className="btn btn-danger" onClick={()=>this.peticionDelete(this.state.form.id)}>eliminar</button>
+                                    <button className="btn btn-primary" onClick={()=>{this.seleccionarEmpresa(empresa); this.modalInsertar()}}>actualizar</button>
+                                    {"   "}
+                                    <button className="btn btn-danger" onClick={()=>{this.seleccionarEmpresa(empresa); this.setState({modalEliminar: true})}}>eliminar</button>
                                 </td>
                             </tr>
                         )
                     })}
-
-                    </thead>
-                    <tbody>
-
                     </tbody>
                 </table>
 
-                    </form>
+
+
+                <Modal isOpen={this.state.modalInsertar}>
+                    <ModalHeader style={{display: 'block'}}>
+                        <span style={{float: 'right'}} onClick={()=>this.modalInsertar()}>x</span>
+                    </ModalHeader>
+                    <ModalBody>
+
+                        <div className="form-group">
+                            <label htmlFor="id">ID</label>
+                            <input className="form-control" type="text" name="id" id="id" readOnly onChange={this.handleChange} value={form?form.id: ''}/>
+                            <br />
+                            <label htmlFor="nombre">Cubiculo</label>
+                            <input className="form-control" type="text" name="apellidoP" id="apellidoP" onChange={this.handleChange} value={form?form.apellidoP: ''}/>
+                            <br />
+                            <label htmlFor="nombre">Numero de Cubiculo</label>
+                            <input className="form-control" type="text" name="numeroAula" id="numeroAula" onChange={this.handleChange} value={form?form.numeroAula: ''}/>
+                            <br />
+                            <label htmlFor="energiaElec">Energia Electrica</label>
+                            <input className="form-control" type="text" name="energiaElec" id="energiaElec" onChange={this.handleChange} value={form?form.energiaElec:''}/>
+                            <br />
+                            <label htmlFor="infraestructura">Infraestructura</label>
+                            <input className="form-control" type="text" name="infraestructura" id="infraestructura" onChange={this.handleChange} value={form?form.infraestructura:''}/>
+                        </div>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        {this.state.tipoModal=='insertar'?
+                            <button className="btn btn-success" onClick={()=>this.peticionPost()}>
+                                Insertar
+                            </button>: <button className="btn btn-primary" onClick={()=>this.peticionPut()}>
+                                Actualizar
+                            </button>
+                        }
+                        <button className="btn btn-danger" onClick={()=>this.modalInsertar()}>Cancelar</button>
+                    </ModalFooter>
+                </Modal>
+
+
                 <Modal isOpen={this.state.modalEliminar}>
                     <ModalBody>
                         Estás seguro que deseas eliminar a la empresa {form && form.id}
@@ -172,10 +200,11 @@ class Reporte extends Component {
                         <button className="btn btn-secundary" onClick={()=>this.setState({modalEliminar: false})}>No</button>
                     </ModalFooter>
                 </Modal>
-                < /div>
+            </div>
+
 
 
         );
     }
 }
-export default Reporte;
+export default Atencion;

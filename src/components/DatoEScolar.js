@@ -2,6 +2,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Label, Input, FormG
 import {useEffect, useState} from "react";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import Verdatosescolares from "./Verdatosescolares";
 
 function DatoEScolar() {
     const [modaladd, setModaladd] = useState(false);
@@ -87,7 +88,7 @@ function DatoEScolar() {
         console.log(newdata)
 
     }
-  const url2="http://localhost:3000/api/tutorados/update_dataT"
+    const url2="http://localhost:3000/api/tutorados/update_dataT"
     function axiosPut(){
         axios.put(url2,{
             id: data2.id,
@@ -112,12 +113,17 @@ function DatoEScolar() {
 
     const postDelete = (id,e) =>{
         e.preventDefault();
-        axios.delete(`http://localhost:3000/api/tutorados/delete_dataT?id=${id}`)
+        /*axios.delete(`http://localhost:3000/api/tutorados/delete_dataT?id=${id}`,{data: data})
             .then(res => console.log(res))
             .catch(err =>{
                 console.log(err)
                 console.log(`http://localhost:3000/api/tutorados/delete_dataT?id=${id}`)
-            } )
+            } )*/
+        fetch('http://localhost:3000/api/tutorados/delete_dataT' + id, {
+            method: 'DELETE',
+        })
+            .then(res => res.text()) // or res.json()
+            .then(res => console.log(res))
 
     }
     return(
@@ -174,11 +180,12 @@ function DatoEScolar() {
                         <td className="tr-back"> { blog.resuelto } </td>
                         <td className="tr-back"> { blog.casosTutor } </td>
                         <td className="tr-back"> { blog.casosCanaliacion } </td>
-                        <td className="white2" ><button onClick={(e) => postDelete(data.id, e)} className="Button">eliminar</button><button onClick={add} className="Button">actualizar</button></td>
+                        <td className="white2" ><button onClick={(e) => postDelete(blog.id, e)} className="Button">eliminar</button><button onClick={add} className="Button">actualizar</button></td>
                     </tr>
                 )) }
                 </tbody>
             </table>
+            <Verdatosescolares />
             < div>
                 <form>
                     <Modal isOpen={modaladd}>
